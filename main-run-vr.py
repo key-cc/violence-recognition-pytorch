@@ -9,8 +9,6 @@ from tensorboardX import SummaryWriter
 import sys
 import argparse
 
-
-
 def make_split(fights_dir, noFights_dir):
     imagesF = []
     for target in sorted(os.listdir(fights_dir)):
@@ -51,7 +49,7 @@ def main_run(numEpochs, lr, stepSize, decayRate, trainBatchSize, seqLen, memSize
                                 seqLen=seqLen)
 
     trainLoader = torch.utils.data.DataLoader(vidSeqTrain, batch_size=trainBatchSize,
-                            shuffle=True, num_workers=numWorkers, pin_memory=True, drop_last=True)
+                            shuffle=False, num_workers=numWorkers, pin_memory=True, drop_last=True)
 
     if evalMode == 'centerCrop':
         test_spatial_transform = Compose([Scale(256), CenterCrop(224), ToTensor(), normalize])
@@ -152,7 +150,8 @@ def main_run(numEpochs, lr, stepSize, decayRate, trainBatchSize, seqLen, memSize
                     inputVariable1 = Variable(inputs.permute(1, 0, 2, 3, 4).cuda(), volatile=True)
                 else:
                     inputVariable1 = Variable(inputs[0].cuda(), volatile=True)
-                labelVariable = Variable(targets.cuda(async=True), volatile=True)
+                #labelVariable = Variable(targets.cuda(async=True), volatile=True)
+                labelVariable = Variable(targets.cuda(), volatile=True)
                 outputLabel = model(inputVariable1)
                 outputLabel_mean = torch.mean(outputLabel, 0, True)
                 testLoss = lossFn(outputLabel_mean, labelVariable)
